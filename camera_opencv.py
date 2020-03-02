@@ -50,7 +50,6 @@ class Camera(BaseCamera):
         for frame1 in BaseCamera.camera.capture_continuous(BaseCamera.rawCapture, format="bgr", use_video_port=True):
             img = frame1.array
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            print(gray)
             faces = face_cascade.detectMultiScale(gray,1.08, 2, minSize=(36, 10),maxSize=(36*40, 10*40))
             # faces = face_cascade.detectMultiScale(gray,1.08, 5, minSize=(56, 20),maxSize=(56*40, 20*40))
 
