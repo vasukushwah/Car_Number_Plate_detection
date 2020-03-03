@@ -28,9 +28,6 @@ def login():
             print(1123)
             attempted_username = request.form['username']
             attempted_password = request.form['pass']
-           
-            #flash(attempted_username)
-            #flash(attempted_password)
 
             if attempted_username == "admin" and attempted_password == "password":
                 # return redirect(url_for('camera'))
@@ -52,8 +49,6 @@ def gen(camera,command=None):
             frame = camera.get_frame()
             yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-            if command:
-                break
     except Exception as e:
         print(e)
 
@@ -61,8 +56,10 @@ def gen(camera,command=None):
 @app.route('/video_feed')
 def video_feed():
     """Video streaming route. Put this in the src attribute of an img tag."""
+    # if request.url_rule == '/video_feed' and request.url_rule == '/start' :
     return Response(gen(Camera()),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
+    
 
 
 if __name__ == '__main__':

@@ -2,6 +2,12 @@ import os
 import cv2
 from base_camera import BaseCamera
 import pytesseract
+# import paho.mqtt.client as mqtt #import the client1
+# broker_address="mqtt.eclipse.org"
+# port = 80 
+# #broker_address="iot.eclipse.org" #use external broker
+# client = mqtt.Client("P1") #create new instance
+# client.connect(broker_address,port) #connect to broker
 	
 face_cascade = cv2.CascadeClassifier('cascade.xml')
 
@@ -34,6 +40,7 @@ def computeSafeRegion(shape,bounding_rect):
 
 class Camera(BaseCamera):
     video_source = 0
+    status = False
     def __init__(self):
         self.data = 1
         if os.environ.get('OPENCV_CAMERA_SOURCE'):
@@ -50,9 +57,9 @@ class Camera(BaseCamera):
         for frame1 in BaseCamera.camera.capture_continuous(BaseCamera.rawCapture, format="bgr", use_video_port=True):
             img = frame1.array
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(gray,1.08, 2, minSize=(36, 10),maxSize=(36*40, 10*40))
-            # faces = face_cascade.detectMultiScale(gray,1.08, 5, minSize=(56, 20),maxSize=(56*40, 20*40))
-
+            # faces = face_cascade.detectMultiScale(gray,1.08, 2, minSize=(36, 10),maxSize=(36*40, 10*40))
+            faces = face_cascade.detectMultiScale(gray,1.08, 5, minSize=(56, 20),maxSize=(56*40, 20*40))
+            font = cv2.FONT_HERSHEY_SIMPLEX
             for (x,y,w,h) in faces:
                 x -= w * 0.10
                 w += w * 0.30
@@ -60,7 +67,16 @@ class Camera(BaseCamera):
                 h += h * 0.3
                 cv2.rectangle(img,(int(x), int(y)), (int(x + w), int(y + h)), (0, 255, 0), 1)
                 cropped = cropImage(img, (int(x), int(y), int(w), int(h)))
-                print(pytesseract.image_to_string(cropped))
+                rec = pytesseract.image_to_string(cropped)
+                if '$' in rec:
+                    rec = rec.replace('$','s')
+                print(rec)
+                cv2.putText(img,rec,(2,170),font,1,(0,255,0),2,cv2.LINE_AA)
+                # print(pytesseract.image_to_string(cropped))
                 cv2.imwrite("cropped.jpg", cropped) 
+            # client.publish("/data","OFF")#publish
+                    
             yield cv2.imencode('.jpg', img)[1].tobytes()
             BaseCamera.rawCapture.truncate(0)
+            if Camera.status:
+                break

@@ -1,5 +1,5 @@
 window.onload = function() {
-    client = new Paho.MQTT.Client("0.0.0.0", 1883, "clientId-" + parseInt(Math.random() * 100, 10));
+    client = new Paho.MQTT.Client("mqtt.eclipse.org",80, "clientId-" + parseInt(Math.random() * 100, 10));
 
     var logElem = document.querySelector(".log");
     // set callback handlers
@@ -14,7 +14,7 @@ window.onload = function() {
     function onConnect() {
         // Once a connection has been made, make a subscription and send a message.
         console.log("onConnect");
-        client.subscribe("World");
+        client.subscribe("/data");
         message = new Paho.MQTT.Message("Hello");
         message.destinationName = "World";
         client.send(message);
@@ -33,4 +33,4 @@ window.onload = function() {
         logElem.innerHTML += message.payloadString
         logElem.innerHTML += "\n"
     }
-}
+}s
