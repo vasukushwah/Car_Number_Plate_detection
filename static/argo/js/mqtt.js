@@ -31,19 +31,18 @@
 //         logElem.innerHTML += "\n"
 //     }
 // }
+
+
+var div = document.getElementsByClassName("data")[0];
 window.onload = startConnect()
-
-
 function startConnect() {
     // Generate a random client ID
     clientID = "clientID-" + parseInt(Math.random() * 100);
 
     // Fetch the hostname/IP address and port number from the form
-    host = "mqtt.eclipse.org"
+    host = "mqtt.eclipse.org";
     port = 80;
-
     // Print output for the user in the messages div
-    
     // Initialize new Paho client connection
     client = new Paho.MQTT.Client(host, port, clientID);
 
@@ -52,7 +51,7 @@ function startConnect() {
     client.onMessageArrived = onMessageArrived;
 
     // Connect the client, if successful, call onConnect function
-    client.connect({ 
+    client.connect({
         onSuccess: onConnect,
     });
 }
@@ -60,33 +59,35 @@ function startConnect() {
 // Called when the client connects
 function onConnect() {
     // Fetch the MQTT topic from the form
-    topic = "house/bulbs/bulb1";
+    topic = "/data";
 
     // Print output for the user in the messages div
+    // div.innerHTML += '<span>Subscribing to: ' + topic + '</span><br/>';
+
     // Subscribe to the requested topic
     client.subscribe(topic);
 }
 
 // Called when the client loses its connection
 function onConnectionLost(responseObject) {
-    // document.getElementById("messages").innerHTML += '<span>ERROR: Connection lost</span><br/>';
-    console.log("conection lost");
-    
-    if (responseObject.errorCode !== 0) {
-        console.log(" ERROR: ' + + responseObject.errorMessage + '</span><br/>'");
-    }
+    startConnect()
 }
 
 // Called when a message arrives
 function onMessageArrived(message) {
     console.log("onMessageArrived: " + message.payloadString);
-    // document.getElementById("messages").innerHTML += '<span>Topic: ' + message.destinationName + '  | ' + message.payloadString + '</span><br/>';
+
+    dataset = JSON.parse(message.payloadString)
+    div.innerHTML += `<p class="mb-0"> Number: <span class="font-weight-bold">`+ dataset.number + `</span></p>
+                    <p class="mb-0"> Name: <span class="font-weight-bold">`+ dataset.name + `</span></p>  
+                    <p class="mb-0"> Car Model: <span class="font-weight-bold">`+ dataset.car_model + `</span></p>
+                    <p class="mb-0"> Mobile no.: <span class="font-weight-bold">`+ dataset.mob + `</span></p></br>`;
+                    
+
 }
 
 // Called when the disconnection button is pressed
 function startDisconnect() {
     client.disconnect();
-    console.log("Disconnect");
-    
-    // document.getElementById("messages").innerHTML += '<span>Disconnected</span><br/>';
+    div.innerHTML += '<span>Disconnected</span><br/>';
 }
