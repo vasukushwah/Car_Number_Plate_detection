@@ -21,7 +21,7 @@ def camera():
     """Video streaming home page."""
     return render_template('index.html')
 
-@app.route('/login',methods=['POST'])
+@app.route('/login',methods=['GET','POST'])
 def login():
     try:
         if request.method == "POST":
@@ -36,7 +36,7 @@ def login():
                 error = "Invalid credentials. Try Again."   
                 return render_template("index.html", error = error)
         if request.method == "GET":
-            return render_template("index.html")
+            return render_template("login.html")
             
     except Exception as e:
         flash(e)
